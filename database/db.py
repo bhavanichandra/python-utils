@@ -2,6 +2,10 @@
 import functools
 from mongoengine import connect
 from pymongo import MongoClient
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 def singleton(cls):
@@ -17,13 +21,13 @@ def singleton(cls):
 def mongo_connect(cls):
     def wrapper(*args, **kwargs):
         value: MongoClient = connect(db='employee_directory',
-                                     host='mongodb+srv://api_user:QrOFOSkGENa1h51t@cluster0.yerkz.mongodb.net/')
+                                     host=str(os.getenv('MONGO_DB_URL')))
         cls.mongo_client = value
         return cls(*args, **kwargs)
     return wrapper
 
 
-@singleton
+# @singleton
 @mongo_connect
 class Test:
     mongo_client: MongoClient

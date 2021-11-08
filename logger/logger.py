@@ -6,7 +6,7 @@ import functools
 # File(yaml) based config
 
 
-def load_logging_config(config_file: str = 'config.yml'):
+def load_logging_config(config_file: str = 'config/config.yml'):
     """ Loads logging config from an yaml file
     """
     with open(config_file, 'r') as f:
@@ -15,7 +15,7 @@ def load_logging_config(config_file: str = 'config.yml'):
 
 
 # Decorator to load yaml based config
-def log(config_file: str = '/logger/config/config.yml'):
+def log(config_file: str = 'config/config.yml'):
     """ function that returns the decorator
     """
     def decorator(func):
