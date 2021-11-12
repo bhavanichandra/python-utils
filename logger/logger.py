@@ -3,9 +3,6 @@ import logging.config
 import yaml
 import functools
 
-# File(yaml) based config
-
-
 def load_logging_config(config_file: str = 'config/config.yml'):
     """ Loads logging config from an yaml file
     """
