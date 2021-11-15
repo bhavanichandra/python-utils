@@ -3,7 +3,6 @@ import logging.config
 import yaml
 import functools
 
-
 def load_logging_config(config_file: str = 'config/config.yml'):
     """ Loads logging config from an yaml file
     """
@@ -16,11 +15,9 @@ def load_logging_config(config_file: str = 'config/config.yml'):
 def log(config_file: str = 'config/config.yml'):
     """ function that returns the decorator
     """
-
     def decorator(func):
         """ Decorator to load logging config from yaml file
         """
-
         @functools.wraps(func)
         def log_wrapper(*args, **kwargs):
             """ Wraps the function to load the logging config from config.yaml and
@@ -30,16 +27,13 @@ def log(config_file: str = 'config/config.yml'):
             logging.info(
                 f"{func.__name__} called with args: {args} and kwargs: {kwargs}")
             return func(*args, **kwargs)
-
         return log_wrapper
-
     return decorator
 
 
 def log_v1(func):
     """Decorator to load the logging config
     """
-
     @functools.wraps(func)
     def log_wrapper(*args, **kwargs):
         """ Wraps the function to load the logging config from config.yaml and
