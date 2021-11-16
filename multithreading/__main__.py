@@ -8,8 +8,8 @@ config_file = BASE_DIR / 'config.yaml'
 
 
 @log(config_file=config_file.__str__())
-def test():
-    logging.info("test")
+def test(name):
+    logging.info(f"test -> {name}")
 
 
-test()
+test('Bhavani')
