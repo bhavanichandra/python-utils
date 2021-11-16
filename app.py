@@ -1,13 +1,15 @@
 import logging
-from logger.logger import log
 import pathlib
+
+from logger.logger import LoggerFactory
 
 BASE_DIR = pathlib.Path(__file__).parent.resolve()
 
 config_file = BASE_DIR / 'log.yaml'
 
+LoggerFactory(config_file=config_file)
 
-@log(config_file=config_file.__str__())
+# @log(config_file=config_file.__str__())
 def do_something():
     arr = [1, 2, 3, 4]
     logging.info(f'Array elements: {arr}')
@@ -29,7 +31,7 @@ def do_something():
         logging.exception(e.__str__())
 
 
-@log(config_file=config_file.__str__())
+# @log(config_file=config_file.__str__())
 class Test:
     def __init__(self):
         logging.info('Initializing Test Class')
@@ -40,6 +42,6 @@ class Test:
 
 if __name__ == '__main__':
     # load_logging_config()
-    # do_something()
+    do_something()
     test = Test()
     test.print_something()
