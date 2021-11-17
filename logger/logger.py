@@ -5,7 +5,7 @@ import logging.config
 import yaml
 
 
-def load_logging_config(config_file: str = 'config/config.yml'):
+def load_logging_config(config_file: str):
     """ Loads logging config from an yaml file
     """
     with open(config_file, 'r') as f:
@@ -29,7 +29,7 @@ class LoggerFactory:
 
 
 # Decorator to load yaml based config
-def log(config_file: str = 'config/config.yml'):
+def log(config_file: str):
     """ function that returns the decorator
     """
 

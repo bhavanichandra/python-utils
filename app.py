@@ -1,5 +1,6 @@
 import logging
 import pathlib
+import sys
 import time
 from concurrent.futures import ThreadPoolExecutor
 
@@ -10,10 +11,9 @@ BASE_DIR = pathlib.Path(__file__).parent.resolve()
 
 config_file = BASE_DIR / 'log.yaml'
 
-LoggerFactory(config_file=config_file)
-
 
 def do_something():
+    LoggerFactory(config_file=config_file)  # For do_something function, LoggerFactory is used
     arr = [1, 2, 3, 4]
     logging.info(f'Array elements: {arr}')
     count = 0
@@ -34,16 +34,32 @@ def do_something():
         logging.exception(e.__str__())
 
 
+def basic_logger_config(name):
+    """
+    Basic logger configuration
+    """
+    logging.basicConfig(
+        format='%(asctime)s - [%(levelname)s] - [%(name)s] - [%(threadName)s] - %(message)s',
+        level=logging.INFO,
+        datefmt='%Y-%m-%d %H:%M:%S',
+        stream=sys.stdout
+    )
+    return logging.getLogger(name)
+
+
 class Test:
+    logger = basic_logger_config(__name__)
+
     def __init__(self):
         self.client = HttpClient()
-        logging.info('Initializing Test Class')
+        self.logger.info('Initializing Test Class')
+        logging.getLogger("chardet.charsetprober").disabled = True
 
     def print_something(self):
-        logging.info(f'Printing something. From {self.__class__.__name__}')
+        self.logger.info(f'Printing something. From {self.__class__.__name__}')
 
     def call_http(self):
-        logging.info(f'Calling http. From {self.__class__.__name__}')
+        self.logger.info(f'Calling http. From {self.__class__.__name__}')
         return self.client.get('https://jsonplaceholder.typicode.com/posts')
 
 
@@ -52,7 +68,6 @@ def io_calls(num_of_calls):
     start = time.time()
     for i in range(num_of_calls):
         test = Test()
-        test.print_something()
         result = test.call_http()
         logging.info(f'Result: {result.json()}')
     logging.info(f'elapsed time: {time.time() - start}')
@@ -61,6 +76,6 @@ def io_calls(num_of_calls):
 
 if __name__ == '__main__':
     # load_logging_config()
-    # do_something()
-    with ThreadPoolExecutor(max_workers=5) as executor:
-        executor.map(io_calls, range(3))
+    do_something()
+    with ThreadPoolExecutor(max_workers=3) as executor:
+        executor.map(io_calls, range(2))

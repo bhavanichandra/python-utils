@@ -8,13 +8,8 @@ handlers:
     level: INFO
     formatter: simple
     stream: ext://sys.stdout
-  file:
-    class: logging.handlers.RotatingFileHandler
-    level: INFO
-    formatter: simple
-    filename: logs/app.log
 loggers:
   root:
     level: INFO
-    handlers: [console, file]
+    handlers: [console]
     
