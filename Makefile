@@ -13,8 +13,6 @@ else
 	PIP = $(VENV)/Scripts/pip
 endif
 
-
-
 init: 
 	touch requirements.txt
 	echo 'Add .gitignore'

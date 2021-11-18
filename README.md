@@ -29,3 +29,27 @@ This repo contains various utility and example packages
 - Please check [app.py](app.py) file on how to use the Database class.
 
 
+## Usage steps:
+
+Please follow below steps after cloning this repository
+
+- There is a Makefile used in this repository. It has various rules that can streamline the developement process
+
+### Mac Users
+
+use `make run`. It will create .venv virtual environment, download all the required libraries from requirements.txt and installs them to .venv
+
+### Windows Users
+
+use  `make OS=win run` to get the same as mac users
+
+### Other make rules
+
+- When a new package is added, update the requirements.txt using make with `make update-requirements` command
+- To do a safety check of the code, install saftey package from pip as `python -m pip install saftey`
+  - Run `make saftey` to do saftey check. This let us know if we are any vulnerable libraries.
+
+
+> Please feel free to fork the repository and make changes. Please feel free to contact me at [email](mailto:bhavanichandra9@gmail.com)
+
+
