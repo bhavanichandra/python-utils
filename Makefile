@@ -40,4 +40,7 @@ commit-push: update-requirements
 
 clean:
 	find . -type d -name __pycache__ -prune -exec rm -r {} +
+	rm -rf .idea
+	rm -rf .vscode
+	rm -rf logs
 	
