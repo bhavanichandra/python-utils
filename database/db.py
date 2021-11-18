@@ -1,48 +1,62 @@
+import logging
 
-import functools
-from mongoengine import connect
-from pymongo import MongoClient
-import os
+import mongoengine
 from dotenv import load_dotenv
+from mongoengine import Document, connect
+from pymongo import MongoClient
+from pymongo.errors import ConnectionFailure, OperationFailure
 
 load_dotenv()
 
 
-def singleton(cls):
-    @functools.wraps(cls)
-    def singleton_wrapper(*args, **kwargs):
-        if singleton_wrapper.instance is None:
-            singleton_wrapper.instance = cls(*args, **kwargs)
-        return singleton_wrapper.instance
-    singleton_wrapper.instance = None
-    return singleton_wrapper
+# Models
+class Employee(Document):
+    name = mongoengine.StringField(required=True)
+    email = mongoengine.EmailField(required=True)
+    mobile = mongoengine.StringField()
+    meta = {'collection': 'employee'}
+
+    def __str__(self):
+        return f'name: {self.name} | email: {self.email} | mobile: {self.mobile} '
+
+    @staticmethod
+    def collection():
+        return 'employee'
 
 
-def mongo_connect(cls):
-    def wrapper(*args, **kwargs):
-        value: MongoClient = connect(db='employee_directory',
-                                     host=str(os.getenv('MONGO_DB_URL')))
-        cls.mongo_client = value
-        return cls(*args, **kwargs)
-    return wrapper
+# Database Transaction Class
+class Database:
+    def __init__(self, connection_str: str, db_name: str):
+        """
+        Initialize the database connection with mongo engine
+        """
+        self.client: MongoClient = connect(db=db_name, host=connection_str)
+        self.database = self.client.get_database(name=db_name)
+        self.session = self.client.start_session()
 
+    def _commit_transaction(self):
+        """
+        Commit the transaction
+        """
+        try:
+            self.session.commit_transaction()
+        except (ConnectionFailure, OperationFailure) as ex:
+            if ex.has_error_label("TransientTransactionError"):
+                logging.info("TransientTransactionError")
+                self._commit_transaction()
+            else:
+                raise
 
-# @singleton
-@mongo_connect
-class Test:
-    mongo_client: MongoClient
-
-    def __init__(self):
-        print('Initialized')
-
-    def get_collection(self):
-        print(self.mongo_client)
-
-
-test = Test()
-test2 = Test()
-
-client = test.mongo_client
-db = client.get_database('employee_directory')
-employee_collection = db.get_collection('employee')
-print(list(employee_collection.find({})))
+    def execute_db_operations(self, func: callable, collection_name: str):
+        try:
+            with self.session.start_transaction():
+                collection = self.database.get_collection(collection_name)
+                result = func(session=self.session, collection=collection)
+                self._commit_transaction()
+                return result
+        except (ConnectionFailure, OperationFailure) as ex:
+            if ex.has_error_label("TransientTransactionError"):
+                logging.info("TransientTransactionError")
+                self.execute_db_operations(func, collection)
+            else:
+                raise

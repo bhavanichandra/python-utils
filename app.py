@@ -1,9 +1,16 @@
 import logging
+import os
 import pathlib
 import sys
 import time
-from concurrent.futures import ThreadPoolExecutor
 
+from pymongo.client_session import ClientSession
+from pymongo.collection import Collection
+
+# from concurrent.futures import ThreadPoolExecutor
+from bson.json_util import dumps
+import json
+from database.db import Database, Employee
 from logger.logger import LoggerFactory
 from multithreading.threading import HttpClient
 
@@ -74,8 +81,22 @@ def io_calls(num_of_calls):
     logging.info('Ending IO calls')
 
 
+connection_str = str(os.getenv('MONGO_DB_URL'))
+database = Database(connection_str=connection_str, db_name='employee_directory')
+
+
+def execute_db_statements(session: ClientSession, collection: Collection):
+    emp = Employee(name='Bhavani Chandra', email='bhavanichandra9@gmail.com', mobile='9989789012')
+    inserted_id = collection.insert_one(emp.to_mongo(), session=session)
+    logging.info(f"Employee data: {emp.__str__()} is inserted: {inserted_id.inserted_id}")
+    fetch_emp = collection.find({'_d': inserted_id.inserted_id}, session=session)
+    return json.loads(dumps(fetch_emp)), inserted_id.inserted_id
+
+
 if __name__ == '__main__':
-    # load_logging_config()
-    do_something()
-    with ThreadPoolExecutor(max_workers=3) as executor:
-        executor.map(io_calls, range(2))
+    result = database.execute_db_operations(execute_db_statements, Employee.collection())
+    print(result)
+# load_logging_config()
+# do_something()
+# with ThreadPoolExecutor(max_workers=3) as executor:
+#     executor.map(io_calls, range(2))
